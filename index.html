@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Axis Studio | Design, Branding & Experiências Digitais</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts: Syne & Plus Jakarta Sans + Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Syne:wght@600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+                        display: ['Syne', 'sans-serif'],
+                    },
+                    colors: {
+                        obsidian: '#09090B',
+                        graphite: '#141418',
+                        offwhite: '#f5f5f7',
+                        accent: {
+                            DEFAULT: '#D4AF37', // Dourado Champanhe
+                            light: '#E8C968',
+                            dark: '#A88620'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Animações suaves de revelação ao rolar (Scroll Reveal) */
+        .reveal {
+            opacity: 0;
+            transform: translateY(28px);
+            transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        .reveal-delay-1 { transition-delay: 0.12s; }
+        .reveal-delay-2 { transition-delay: 0.24s; }
+    </style>
+</head>
+<body class="bg-obsidian text-offwhite font-sans antialiased selection:bg-accent selection:text-obsidian overflow-x-hidden">
+
+    <!-- Notificação Flutuante (Toast) -->
+    <div id="toast-notification" class="fixed bottom-6 right-6 z-50 transform translate-y-24 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-graphite/95 backdrop-blur-xl border border-accent/40 text-offwhite px-5 py-4 rounded-2xl shadow-2xl flex items-center gap-3.5 max-w-sm">
+            <div class="w-9 h-9 rounded-full bg-accent/20 text-accent flex items-center justify-center shrink-0">
+                <i data-lucide="check-circle-2" class="w-5 h-5"></i>
+            </div>
+            <div>
+                <p id="toast-title" class="text-sm font-semibold text-white">Copiado!</p>
+                <p id="toast-message" class="text-xs text-zinc-400 mt-0.5">Chave PIX / E-mail copiado com sucesso.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar Fixa Minimalista -->
+    <header id="navbar" class="fixed top-0 inset-x-0 z-40 bg-obsidian/85 backdrop-blur-xl border-b border-white/5 transition-all duration-300">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                <!-- Logo Axis Studio -->
+                <a href="#inicio" class="flex items-center gap-3 group">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-obsidian font-display font-extrabold text-xl shadow-lg shadow-accent/15 group-hover:scale-105 transition-transform">
+                        A
+                    </div>
+                    <div>
+                        <span class="font-display font-bold text-xl tracking-tight text-white block leading-none">AXIS</span>
+                        <span class="text-[10px] uppercase tracking-[0.3em] text-accent font-semibold block mt-1">Studio</span>
+                    </div>
+                </a>
+
+                <!-- Links Desktop (Sem Portfólio) -->
+                <nav class="hidden md:flex items-center gap-9 text-sm font-medium text-zinc-300">
+                    <a href="#inicio" class="hover:text-accent transition-colors">Início</a>
+                    <a href="#sobre" class="hover:text-accent transition-colors">Sobre</a>
+                    <a href="#servicos" class="hover:text-accent transition-colors">Serviços</a>
+                    <a href="#contato-pix" class="hover:text-accent transition-colors">Contato / PIX</a>
+                </nav>
+
+                <!-- CTA Header -->
+                <div class="hidden sm:flex items-center gap-3">
+                    <a href="#contato-pix" class="px-5 py-2.5 rounded-full bg-offwhite text-obsidian font-semibold text-sm hover:bg-accent hover:text-obsidian transition-all duration-300 shadow-md">
+                        Falar Conosco
+                    </a>
+                </div>
+
+                <!-- Botão Menu Mobile -->
+                <button id="mobile-menu-btn" aria-label="Abrir menu" class="md:hidden p-2.5 rounded-xl bg-white/5 text-zinc-200 hover:bg-white/10 transition-colors">
+                    <i data-lucide="menu" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Mobile Dropdown -->
+        <div id="mobile-menu" class="hidden md:hidden bg-graphite border-b border-white/10 px-4 pt-3 pb-6 space-y-2">
+            <a href="#inicio" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-zinc-200 hover:bg-white/5 hover:text-accent">Início</a>
+            <a href="#sobre" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-zinc-200 hover:bg-white/5 hover:text-accent">Sobre</a>
+            <a href="#servicos" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-zinc-200 hover:bg-white/5 hover:text-accent">Serviços</a>
+            <a href="#contato-pix" class="mobile-link block px-4 py-3 rounded-xl text-base font-medium text-accent bg-accent/10">Contato / PIX</a>
+        </div>
+    </header>
+
+    <!-- 1. HERO SECTION (100% Elementos Geométricos SVG & CSS Puro) -->
+    <section id="inicio" class="relative min-h-screen flex items-center pt-24 pb-16 overflow-hidden">
+        <!-- Fundo Geométrico / Malha Digital Abstrata em CSS & SVG -->
+        <div class="absolute inset-0 z-0 pointer-events-none">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_25%_30%,rgba(212,175,55,0.12),transparent_55%)]"></div>
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_80%_70%,rgba(212,175,55,0.08),transparent_50%)]"></div>
+            <svg class="w-full h-full opacity-20" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <pattern id="axisGridPattern" width="64" height="64" patternUnits="userSpaceOnUse">
+                        <path d="M 64 0 L 0 0 0 64" fill="none" stroke="#D4AF37" stroke-opacity="0.22" stroke-width="0.6"/>
+                        <circle cx="0" cy="0" r="1.2" fill="#D4AF37" fill-opacity="0.45"/>
+                    </pattern>
+                </defs>
+                <rect width="100%" height="100%" fill="url(#axisGridPattern)"/>
+            </svg>
+            <div class="absolute inset-0 bg-gradient-to-b from-obsidian/70 via-obsidian/50 to-obsidian"></div>
+        </div>
+
+        <div class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+            <div class="grid lg:grid-cols-12 gap-12 items-center">
+                <!-- Coluna Esquerda: Headline & CTA -->
+                <div class="lg:col-span-7 space-y-7 reveal active">
+                    <div class="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-white/5 border border-white/10 backdrop-blur-md">
+                        <span class="w-2 h-2 rounded-full bg-accent animate-pulse"></span>
+                        <span class="text-xs sm:text-sm font-medium text-zinc-300 tracking-wide">Axis Studio — Design, Branding & Inteligência Artificial</span>
+                    </div>
+
+                    <h1 class="font-display text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.07]">
+                        O eixo central entre <span class="text-transparent bg-clip-text bg-gradient-to-r from-accent via-accent-light to-accent-dark">estratégia e estética.</span>
+                    </h1>
+
+                    <p class="text-base sm:text-lg text-zinc-300 max-w-2xl leading-relaxed font-light">
+                        Na <strong class="text-white font-semibold">Axis Studio</strong>, projetamos identidades visuais icônicas e experiências digitais sob medida, combinando direção de arte humana e <strong class="text-accent font-medium">Inteligência Artificial</strong> para posicionar marcas com autoridade.
+                    </p>
+
+                    <!-- Botões de Ação -->
+                    <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 pt-2">
+                        <a href="#contato-pix" class="px-8 py-4 rounded-2xl bg-accent text-obsidian font-bold text-sm sm:text-base hover:bg-accent-light transition-all duration-300 flex items-center justify-center gap-2.5 shadow-xl shadow-accent/15">
+                            <span>Contato & Chave PIX</span>
+                            <i data-lucide="arrow-up-right" class="w-5 h-5"></i>
+                        </a>
+                        <button onclick="copyAxisKey(this)" class="px-6 py-4 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-medium text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2.5 backdrop-blur-md">
+                            <i data-lucide="copy" class="w-4 h-4 text-accent"></i>
+                            <span class="btn-label">Copiar Chave PIX / E-mail</span>
+                        </button>
+                    </div>
+
+                    <!-- Diferenciais Rápidos -->
+                    <div class="grid grid-cols-3 gap-6 pt-8 border-t border-white/10 max-w-lg">
+                        <div>
+                            <p class="font-display text-2xl sm:text-3xl font-bold text-white">IA + Arte</p>
+                            <p class="text-xs text-zinc-400 mt-1">Criação Potencializada</p>
+                        </div>
+                        <div>
+                            <p class="font-display text-2xl sm:text-3xl font-bold text-accent">360°</p>
+                            <p class="text-xs text-zinc-400 mt-1">Identidade & Web</p>
+                        </div>
+                        <div>
+                            <p class="font-display text-2xl sm:text-3xl font-bold text-white">Direto</p>
+                            <p class="text-xs text-zinc-400 mt-1">E-mail & PIX Único</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Coluna Direita: Arte Geométrica / Generativa Abstrata em SVG & CSS -->
+                <div class="lg:col-span-5 reveal reveal-delay-1 active">
+                    <div class="relative rounded-3xl overflow-hidden border border-white/15 bg-graphite/80 p-3 shadow-2xl">
+                        <div class="relative w-full h-[390px] sm:h-[470px] rounded-2xl bg-gradient-to-br from-[#14141a] via-[#09090B] to-[#1a1610] overflow-hidden flex items-center justify-center border border-white/5">
+                            <!-- Malha Geométrica e Órbitas Abstratas em SVG -->
+                            <svg class="w-full h-full opacity-95" viewBox="0 0 400 480" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <defs>
+                                    <radialGradient id="axisGlow" cx="50%" cy="42%" r="55%">
+                                        <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.32"/>
+                                        <stop offset="60%" stop-color="#D4AF37" stop-opacity="0.06"/>
+                                        <stop offset="100%" stop-color="#09090B" stop-opacity="0"/>
+                                    </radialGradient>
+                                    <linearGradient id="goldStroke" x1="0%" y1="0%" x2="100%" y2="100%">
+                                        <stop offset="0%" stop-color="#E8C968"/>
+                                        <stop offset="50%" stop-color="#D4AF37"/>
+                                        <stop offset="100%" stop-color="#A88620" stop-opacity="0.25"/>
+                                    </linearGradient>
+                                </defs>
+                                <rect width="400" height="480" fill="url(#axisGlow)"/>
+                                <!-- Eixos Estruturais -->
+                                <line x1="200" y1="20" x2="200" y2="380" stroke="url(#goldStroke)" stroke-width="1" stroke-dasharray="4 4"/>
+                                <line x1="30" y1="200" x2="370" y2="200" stroke="url(#goldStroke)" stroke-width="1" stroke-dasharray="4 4"/>
+                                <!-- Anéis Concêntricos -->
+                                <circle cx="200" cy="200" r="145" stroke="url(#goldStroke)" stroke-width="1"/>
+                                <circle cx="200" cy="200" r="105" stroke="#ffffff" stroke-opacity="0.12" stroke-width="1"/>
+                                <circle cx="200" cy="200" r="65" stroke="url(#goldStroke)" stroke-width="1.5"/>
+                                <!-- Geometria Central Axis -->
+                                <polygon points="200,85 300,200 200,315 100,200" stroke="url(#goldStroke)" stroke-width="1.2" fill="#D4AF37" fill-opacity="0.04"/>
+                                <circle cx="200" cy="200" r="10" fill="#D4AF37"/>
+                                <circle cx="200" cy="85" r="4" fill="#E8C968"/>
+                                <circle cx="300" cy="200" r="4" fill="#E8C968"/>
+                                <circle cx="100" cy="200" r="4" fill="#E8C968"/>
+                            </svg>
+
+                            <!-- Selo Flutuante de Criação com Inteligência Artificial -->
+                            <div class="absolute top-5 left-5 right-5 flex items-center justify-between gap-2">
+                                <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-obsidian/85 backdrop-blur-md border border-accent/30 text-accent text-xs font-semibold">
+                                    <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
+                                    Desenvolvido com Inteligência Artificial
+                                </span>
+                                <span class="px-2.5 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] text-zinc-400 font-mono">AI-ASSISTED</span>
+                            </div>
+                        </div>
+
+                        <!-- Card Flutuante Oficial -->
+                        <div class="absolute bottom-6 left-6 right-6 bg-obsidian/90 backdrop-blur-xl border border-white/10 p-5 rounded-2xl">
+                            <div class="flex items-center justify-between gap-4">
+                                <div class="min-w-0">
+                                    <span class="text-[11px] uppercase tracking-widest text-accent font-semibold block">E-mail & Chave PIX Oficial</span>
+                                    <p class="text-sm font-medium text-white mt-0.5 truncate">axis.studio.dsgg@Gmail.com</p>
+                                </div>
+                                <button onclick="copyAxisKey(this)" title="Copiar e-mail e chave PIX" class="px-3.5 py-2.5 rounded-xl bg-accent/15 text-accent hover:bg-accent hover:text-obsidian transition-colors shrink-0 text-xs font-semibold flex items-center gap-1.5">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span class="btn-label">Copiar</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 2. SOBRE A AXIS STUDIO -->
+    <section id="sobre" class="py-24 bg-graphite/60 border-y border-white/5 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+                <!-- Composição Visual Abstrata & Tecnológica -->
+                <div class="lg:col-span-6 grid grid-cols-2 gap-4 sm:gap-6 reveal">
+                    <div class="space-y-4 sm:space-y-6">
+                        <div class="relative w-full h-64 sm:h-80 rounded-3xl border border-white/10 shadow-lg bg-gradient-to-b from-obsidian via-[#13131a] to-graphite p-6 flex flex-col justify-between overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="w-10 h-10 rounded-xl bg-accent/15 border border-accent/30 flex items-center justify-center text-accent">
+                                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                </span>
+                                <span class="text-[11px] font-mono uppercase tracking-widest text-zinc-400">Fluxo Híbrido</span>
+                            </div>
+                            <!-- Ondas Vetoriais Abstratas -->
+                            <svg class="w-full h-28 opacity-85" viewBox="0 0 240 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M0 70 C 60 10, 120 95, 240 25" stroke="#D4AF37" stroke-width="1.5"/>
+                                <path d="M0 85 C 70 30, 140 100, 240 45" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1"/>
+                                <circle cx="120" cy="54" r="5" fill="#D4AF37"/>
+                            </svg>
+                            <div>
+                                <p class="font-display font-bold text-white text-base">Direção Humana + IA</p>
+                                <p class="text-xs text-zinc-400 mt-1">Curadoria estética rigorosa aliada à velocidade generativa.</p>
+                            </div>
+                        </div>
+
+                        <div class="p-6 rounded-3xl bg-obsidian border border-white/10">
+                            <i data-lucide="compass" class="w-7 h-7 text-accent mb-3"></i>
+                            <h3 class="font-display font-bold text-lg text-white">Direção Clara</h3>
+                            <p class="text-xs sm:text-sm text-zinc-400 mt-1.5 leading-relaxed">Cada decisão visual é guiada por propósito e posicionamento de mercado.</p>
+                        </div>
+                    </div>
+                    <div class="space-y-4 sm:space-y-6 pt-8 sm:pt-12">
+                        <div class="p-6 rounded-3xl bg-gradient-to-br from-accent/20 to-obsidian border border-accent/30">
+                            <p class="font-display text-3xl font-extrabold text-accent">Axis</p>
+                            <p class="text-xs sm:text-sm text-zinc-200 mt-2 leading-relaxed">O eixo estrutural que sustenta, equilibra e dá movimento à identidade de uma marca.</p>
+                        </div>
+                        <div class="relative w-full h-64 sm:h-80 rounded-3xl border border-white/10 shadow-lg bg-gradient-to-tr from-obsidian via-[#161512] to-graphite p-6 flex flex-col justify-between overflow-hidden">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs font-semibold text-accent uppercase tracking-wider">Transparência Criativa</span>
+                                <i data-lucide="cpu" class="w-5 h-5 text-accent"></i>
+                            </div>
+                            <!-- Grade Geométrica Minimalista -->
+                            <div class="grid grid-cols-4 gap-2 my-auto opacity-80">
+                                <div class="h-8 rounded-lg bg-accent/20 border border-accent/30"></div>
+                                <div class="h-8 rounded-lg bg-white/5 border border-white/10"></div>
+                                <div class="h-8 rounded-lg bg-white/5 border border-white/10"></div>
+                                <div class="h-8 rounded-lg bg-accent/10 border border-accent/20"></div>
+                                <div class="h-8 rounded-lg bg-white/5 border border-white/10"></div>
+                                <div class="h-8 rounded-lg bg-accent/30 border border-accent/40"></div>
+                                <div class="h-8 rounded-lg bg-accent/15 border border-accent/25"></div>
+                                <div class="h-8 rounded-lg bg-white/5 border border-white/10"></div>
+                            </div>
+                            <div>
+                                <p class="font-display font-bold text-white text-base">Ativos Gerados com IA</p>
+                                <p class="text-xs text-zinc-400 mt-1">Conceitos, visuais e protótipos refinados sob medida para cada cliente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Manifesto & Os 3 Pilares -->
+                <div class="lg:col-span-6 space-y-6 reveal reveal-delay-1">
+                    <span class="text-xs uppercase tracking-[0.25em] text-accent font-semibold">Sobre a Axis Studio</span>
+                    <h2 class="font-display text-3xl sm:text-4xl lg:text-5xl font-bold text-white leading-tight">
+                        Design atemporal impulsionado por Inteligência Artificial.
+                    </h2>
+                    <p class="text-zinc-300 text-base sm:text-lg leading-relaxed font-light">
+                        A <strong class="text-white font-semibold">Axis Studio</strong> é um estúdio independente dedicado a transformar visões em marcas memoráveis e interfaces digitais refinadas.
+                    </p>
+                    <p class="text-zinc-400 text-sm sm:text-base leading-relaxed">
+                        Evitamos tendências passageiras em favor de sistemas visuais coesos, tipografia expressiva e execução impecável em cada ponto de contato com o seu público.
+                    </p>
+
+                    <!-- Aviso Destacado sobre Uso de Inteligência Artificial -->
+                    <div class="p-4 sm:p-5 rounded-2xl bg-accent/10 border border-accent/30 flex items-start gap-3.5">
+                        <div class="w-9 h-9 rounded-xl bg-accent/20 text-accent flex items-center justify-center shrink-0 mt-0.5">
+                            <i data-lucide="sparkles" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="text-sm font-bold text-white">Aviso de Criação Assistida por Inteligência Artificial</h3>
+                            <p class="text-xs sm:text-sm text-zinc-300 mt-1 leading-relaxed">
+                                Todos os projetos, identidades visuais, interfaces e ativos criativos da <strong class="text-accent font-semibold">Axis Studio</strong> são desenvolvidos com o auxílio e integração de ferramentas avançadas de <strong class="text-white font-medium">Inteligência Artificial</strong>, sempre sob direção de arte e refinamento humano.
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Pilares do Estúdio: Identidade, Estratégia, Precisão -->
+                    <div class="grid sm:grid-cols-3 gap-4 pt-4">
+                        <div class="p-5 rounded-2xl bg-obsidian/80 border border-white/10 hover:border-accent/40 transition-colors">
+                            <div class="w-10 h-10 rounded-xl bg-accent/15 text-accent flex items-center justify-center mb-3.5">
+                                <i data-lucide="fingerprint" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="font-display font-bold text-white text-base">Identidade</h4>
+                            <p class="text-xs text-zinc-400 mt-1.5 leading-relaxed">Autenticidade visual que diferencia sua marca no primeiro olhar.</p>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-obsidian/80 border border-white/10 hover:border-accent/40 transition-colors">
+                            <div class="w-10 h-10 rounded-xl bg-accent/15 text-accent flex items-center justify-center mb-3.5">
+                                <i data-lucide="layers" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="font-display font-bold text-white text-base">Estratégia</h4>
+                            <p class="text-xs text-zinc-400 mt-1.5 leading-relaxed">Conceitos alinhados aos objetivos e à percepção de valor do negócio.</p>
+                        </div>
+
+                        <div class="p-5 rounded-2xl bg-obsidian/80 border border-white/10 hover:border-accent/40 transition-colors">
+                            <div class="w-10 h-10 rounded-xl bg-accent/15 text-accent flex items-center justify-center mb-3.5">
+                                <i data-lucide="crosshair" class="w-5 h-5"></i>
+                            </div>
+                            <h4 class="font-display font-bold text-white text-base">Precisão</h4>
+                            <p class="text-xs text-zinc-400 mt-1.5 leading-relaxed">Rigor técnico, proporção e acabamento refinado em cada detalhe.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3. SERVIÇOS -->
+    <section id="servicos" class="py-24 relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="max-w-3xl mx-auto text-center mb-16 space-y-4 reveal">
+                <span class="text-xs uppercase tracking-[0.25em] text-accent font-semibold">O Que Fazemos</span>
+                <h2 class="font-display text-3xl sm:text-5xl font-bold text-white">Serviços da Axis Studio</h2>
+                <p class="text-zinc-400 text-base sm:text-lg">Soluções criativas desenvolvidas sob medida com integração de Inteligência Artificial para elevar o padrão visual da sua marca.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Serviço 1: Identidade Visual & Branding -->
+                <div class="group rounded-3xl bg-graphite border border-white/10 overflow-hidden hover:border-accent/40 transition-all duration-300 flex flex-col reveal">
+                    <div class="relative h-56 overflow-hidden bg-gradient-to-br from-[#191815] via-obsidian to-[#141418] flex items-center justify-center border-b border-white/5">
+                        <!-- Arte Vetorial Abstrata: Branding & Geometria -->
+                        <svg class="w-44 h-44 group-hover:scale-105 transition-transform duration-500" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="90" cy="90" r="64" stroke="#D4AF37" stroke-opacity="0.35" stroke-width="1.2"/>
+                            <rect x="48" y="48" width="84" height="84" rx="18" transform="rotate(15 90 90)" stroke="#E8C968" stroke-width="1.4" fill="#D4AF37" fill-opacity="0.06"/>
+                            <circle cx="90" cy="90" r="18" stroke="#ffffff" stroke-opacity="0.3" stroke-width="1"/>
+                            <circle cx="90" cy="90" r="5" fill="#D4AF37"/>
+                        </svg>
+                        <div class="absolute top-4 left-4 w-12 h-12 rounded-2xl bg-obsidian/85 backdrop-blur-md border border-white/10 flex items-center justify-center text-accent">
+                            <i data-lucide="pen-tool" class="w-6 h-6"></i>
+                        </div>
+                        <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-obsidian/80 border border-accent/25 text-[10px] font-semibold text-accent uppercase tracking-wider">IA + Direção</span>
+                    </div>
+                    <div class="p-7 flex-1 flex flex-col justify-between space-y-6">
+                        <div>
+                            <h3 class="font-display text-xl font-bold text-white group-hover:text-accent transition-colors">Identidade Visual & Branding</h3>
+                            <p class="text-zinc-400 text-sm mt-3 leading-relaxed">
+                                Criação de logotipos autorais, universo visual completo, paleta de cores, tipografia e manual de marca potencializados por IA para posicionar sua empresa com autoridade.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-2 border-t border-white/5">
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Logotipo</span>
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Brandbook</span>
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Rebranding</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Serviço 2: Design Digital & Web -->
+                <div class="group rounded-3xl bg-graphite border border-white/10 overflow-hidden hover:border-accent/40 transition-all duration-300 flex flex-col reveal reveal-delay-1">
+                    <div class="relative h-56 overflow-hidden bg-gradient-to-br from-[#14151c] via-obsidian to-[#181612] flex items-center justify-center border-b border-white/5">
+                        <!-- Arte Vetorial Abstrata: Interfaces & Web -->
+                        <svg class="w-48 h-40 group-hover:scale-105 transition-transform duration-500" viewBox="0 0 200 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="20" y="22" width="160" height="116" rx="14" stroke="#D4AF37" stroke-opacity="0.4" stroke-width="1.3" fill="#D4AF37" fill-opacity="0.04"/>
+                            <line x1="20" y1="46" x2="180" y2="46" stroke="#ffffff" stroke-opacity="0.15" stroke-width="1"/>
+                            <circle cx="34" cy="34" r="3" fill="#D4AF37"/>
+                            <circle cx="44" cy="34" r="3" fill="#ffffff" fill-opacity="0.3"/>
+                            <circle cx="54" cy="34" r="3" fill="#ffffff" fill-opacity="0.3"/>
+                            <rect x="36" y="60" width="60" height="62" rx="8" stroke="#E8C968" stroke-opacity="0.5" stroke-width="1"/>
+                            <rect x="108" y="60" width="56" height="26" rx="6" fill="#D4AF37" fill-opacity="0.18"/>
+                            <rect x="108" y="96" width="56" height="26" rx="6" stroke="#ffffff" stroke-opacity="0.2" stroke-width="1"/>
+                        </svg>
+                        <div class="absolute top-4 left-4 w-12 h-12 rounded-2xl bg-obsidian/85 backdrop-blur-md border border-white/10 flex items-center justify-center text-accent">
+                            <i data-lucide="layout" class="w-6 h-6"></i>
+                        </div>
+                        <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-obsidian/80 border border-accent/25 text-[10px] font-semibold text-accent uppercase tracking-wider">IA + UI/UX</span>
+                    </div>
+                    <div class="p-7 flex-1 flex flex-col justify-between space-y-6">
+                        <div>
+                            <h3 class="font-display text-xl font-bold text-white group-hover:text-accent transition-colors">Design Digital & Web</h3>
+                            <p class="text-zinc-400 text-sm mt-3 leading-relaxed">
+                                Landing pages de alta conversão, sites institucionais exclusivos e interfaces UI/UX responsivas projetadas com fluxos inteligentes de IA e estética editorial.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-2 border-t border-white/5">
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Web Design</span>
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">UI / UX</span>
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Landing Pages</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Serviço 3: Direção de Arte & Social Media -->
+                <div class="group rounded-3xl bg-graphite border border-white/10 overflow-hidden hover:border-accent/40 transition-all duration-300 flex flex-col reveal reveal-delay-2">
+                    <div class="relative h-56 overflow-hidden bg-gradient-to-br from-[#1a1611] via-obsidian to-[#13141a] flex items-center justify-center border-b border-white/5">
+                        <!-- Arte Vetorial Abstrata: Direção de Arte & IA Generativa -->
+                        <svg class="w-44 h-44 group-hover:scale-105 transition-transform duration-500" viewBox="0 0 180 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <polygon points="90,26 148,132 32,132" stroke="#D4AF37" stroke-width="1.3" fill="#D4AF37" fill-opacity="0.06"/>
+                            <circle cx="90" cy="96" r="34" stroke="#E8C968" stroke-opacity="0.55" stroke-width="1.2" stroke-dasharray="4 3"/>
+                            <circle cx="90" cy="26" r="4" fill="#D4AF37"/>
+                            <circle cx="148" cy="132" r="4" fill="#D4AF37"/>
+                            <circle cx="32" cy="132" r="4" fill="#D4AF37"/>
+                        </svg>
+                        <div class="absolute top-4 left-4 w-12 h-12 rounded-2xl bg-obsidian/85 backdrop-blur-md border border-white/10 flex items-center justify-center text-accent">
+                            <i data-lucide="sparkles" class="w-6 h-6"></i>
+                        </div>
+                        <span class="absolute top-4 right-4 px-2.5 py-1 rounded-full bg-obsidian/80 border border-accent/25 text-[10px] font-semibold text-accent uppercase tracking-wider">IA Generativa</span>
+                    </div>
+                    <div class="p-7 flex-1 flex flex-col justify-between space-y-6">
+                        <div>
+                            <h3 class="font-display text-xl font-bold text-white group-hover:text-accent transition-colors">Direção de Arte & Social Media</h3>
+                            <p class="text-zinc-400 text-sm mt-3 leading-relaxed">
+                                Sistemas de templates, campanhas visuais geradas e refinadas com IA, apresentações executivas e identidade para redes sociais com coesão estética.
+                            </p>
+                        </div>
+                        <div class="flex flex-wrap gap-2 pt-2 border-t border-white/5">
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Social Kit</span>
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Key Visuals IA</span>
+                            <span class="px-3 py-1 rounded-full text-xs bg-white/5 text-zinc-300">Apresentações</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 4. CONTATO & PAGAMENTO RÁPIDO VIA PIX (Cartão Único Centralizado, Sem Formulário) -->
+    <section id="contato-pix" class="py-24 bg-graphite/70 border-t border-white/5 relative overflow-hidden">
+        <!-- Luz Decorativa -->
+        <div class="absolute -bottom-32 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-accent/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="max-w-3xl mx-auto text-center mb-14 space-y-4 reveal">
+                <span class="text-xs uppercase tracking-[0.25em] text-accent font-semibold">Conexão Direta</span>
+                <h2 class="font-display text-3xl sm:text-5xl font-bold text-white">Contato & Pagamento Rápido via PIX</h2>
+                <p class="text-zinc-400 text-base sm:text-lg">
+                    Centralizamos nossa comunicação e pagamentos em um único endereço oficial para maior agilidade e segurança.
+                </p>
+            </div>
+
+            <!-- Cartão Centralizado de E-mail & Chave PIX Oficial -->
+            <div class="max-w-2xl mx-auto">
+                <div class="rounded-3xl bg-obsidian border border-accent/35 p-7 sm:p-11 shadow-2xl reveal">
+                    <div class="space-y-7">
+                        <div class="flex items-center justify-between">
+                            <span class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-accent/15 text-accent text-xs font-semibold">
+                                <i data-lucide="shield-check" class="w-4 h-4"></i>
+                                Canal Oficial Axis Studio
+                            </span>
+                            <span class="text-xs text-zinc-500 font-medium">PIX & E-mail</span>
+                        </div>
+
+                        <div>
+                            <h3 class="font-display text-2xl sm:text-3xl font-bold text-white leading-snug">
+                                Um único endereço para falar conosco ou realizar seu PIX.
+                            </h3>
+                            <p class="text-zinc-400 text-sm sm:text-base mt-3 leading-relaxed">
+                                Tanto o <strong class="text-zinc-200">e-mail de contato</strong> quanto a <strong class="text-zinc-200">chave PIX (tipo E-mail)</strong> da <strong class="text-white">Axis Studio</strong> utilizam exatamente o endereço abaixo:
+                            </p>
+                        </div>
+
+                        <!-- Caixa Destacada da Chave / E-mail -->
+                        <div class="p-5 sm:p-6 rounded-2xl bg-graphite border border-white/10 space-y-4">
+                            <div class="flex items-center justify-between text-xs text-zinc-400">
+                                <span class="uppercase tracking-wider font-semibold text-accent">E-mail & Chave PIX Oficial</span>
+                                <span>Copie com 1 clique</span>
+                            </div>
+
+                            <div class="p-4 rounded-xl bg-obsidian border border-white/10 flex items-center justify-between gap-3">
+                                <code id="axis-official-key" class="text-base sm:text-lg font-mono text-white font-semibold break-all select-all">axis.studio.dsgg@Gmail.com</code>
+                            </div>
+
+                            <!-- Botões de Ação Rápida -->
+                            <div class="grid sm:grid-cols-2 gap-3.5 pt-1">
+                                <button onclick="copyAxisKey(this)" class="w-full py-4 px-5 rounded-xl bg-accent text-obsidian font-bold text-sm hover:bg-accent-light transition-all flex items-center justify-center gap-2 shadow-lg shadow-accent/15">
+                                    <i data-lucide="copy" class="w-4 h-4"></i>
+                                    <span class="btn-label">Copiar Chave / E-mail</span>
+                                </button>
+
+                                <a href="mailto:axis.studio.dsgg@Gmail.com?subject=Projeto%20-%20Axis%20Studio" class="w-full py-4 px-5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/15 text-white font-semibold text-sm transition-all flex items-center justify-center gap-2">
+                                    <i data-lucide="mail" class="w-4 h-4 text-accent"></i>
+                                    <span>Enviar E-mail Direto</span>
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Nota de Comprovante -->
+                        <div class="pt-5 border-t border-white/10 flex items-start gap-3 text-xs sm:text-sm text-zinc-400">
+                            <i data-lucide="info" class="w-4 h-4 text-accent shrink-0 mt-0.5"></i>
+                            <p>Após realizar seu pagamento via PIX, envie o comprovante diretamente para o e-mail <span class="text-zinc-200 font-medium">axis.studio.dsgg@Gmail.com</span>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5. RODAPÉ -->
+    <footer class="bg-obsidian border-t border-white/10 py-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-8">
+                <!-- Marca -->
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-accent to-accent-dark flex items-center justify-center text-obsidian font-display font-extrabold text-lg">
+                        A
+                    </div>
+                    <div>
+                        <span class="font-display font-bold text-lg tracking-tight text-white">Axis Studio</span>
+                        <span class="block text-xs text-zinc-500">Design, Branding & Experiências Digitais</span>
+                    </div>
+                </div>
+
+                <!-- E-mail / Chave PIX no Rodapé -->
+                <div class="flex items-center gap-3 px-4 py-2.5 rounded-full bg-graphite border border-white/10">
+                    <span class="text-xs text-zinc-400">E-mail & PIX:</span>
+                    <a href="mailto:axis.studio.dsgg@Gmail.com" class="text-xs sm:text-sm font-medium text-accent hover:underline">axis.studio.dsgg@Gmail.com</a>
+                    <button onclick="copyAxisKey(this)" title="Copiar" class="text-zinc-400 hover:text-white transition-colors">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    </button>
+                </div>
+
+                <!-- Direitos Autorais & Nota IA -->
+                <div class="text-center md:text-right space-y-1">
+                    <p class="text-xs text-zinc-400">
+                        Projetos e ativos criativos desenvolvidos com integração de <span class="text-accent font-medium">Inteligência Artificial</span>.
+                    </p>
+                    <p class="text-xs text-zinc-500">
+                        &copy; 2026 Axis Studio. Todos os direitos reservados.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts Interativos -->
+    <script>
+        // Inicializar ícones Lucide
+        lucide.createIcons();
+
+        const OFFICIAL_KEY = "axis.studio.dsgg@Gmail.com";
+        let toastTimeout;
+
+        // Função para exibir notificação Toast
+        function showToast(title, message) {
+            const toast = document.getElementById('toast-notification');
+            document.getElementById('toast-title').textContent = title;
+            document.getElementById('toast-message').textContent = message;
+
+            toast.classList.remove('translate-y-24', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            clearTimeout(toastTimeout);
+            toastTimeout = setTimeout(() => {
+                toast.classList.add('translate-y-24', 'opacity-0');
+                toast.classList.remove('translate-y-0', 'opacity-100');
+            }, 3200);
+        }
+
+        // Função para copiar a chave PIX / E-mail com fallback compatível com iframes
+        function copyAxisKey(buttonEl) {
+            const tempInput = document.createElement('textarea');
+            tempInput.value = OFFICIAL_KEY;
+            tempInput.setAttribute('readonly', '');
+            tempInput.style.position = 'absolute';
+            tempInput.style.left = '-9999px';
+            document.body.appendChild(tempInput);
+            tempInput.select();
+
+            try {
+                document.execCommand('copy');
+                showToast('Copiado!', 'axis.studio.dsgg@Gmail.com está na área de transferência.');
+
+                if (buttonEl) {
+                    const label = buttonEl.querySelector('.btn-label');
+                    if (label) {
+                        const originalText = label.textContent;
+                        label.textContent = 'Copiado!';
+                        setTimeout(() => {
+                            label.textContent = originalText;
+                        }, 2200);
+                    }
+                }
+            } catch (err) {
+                showToast('Atenção', 'Selecione e copie: axis.studio.dsgg@Gmail.com');
+            }
+
+            document.body.removeChild(tempInput);
+        }
+
+        // Menu Mobile Toggle
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const mobileLinks = document.querySelectorAll('.mobile-link');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+        });
+
+        mobileLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                mobileMenu.classList.add('hidden');
+            });
+        });
+
+        // Animação Scroll Reveal com IntersectionObserver
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, {
+            threshold: 0.12,
+            rootMargin: '0px 0px -40px 0px'
+        });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+    </script>
+</body>
+</html>
